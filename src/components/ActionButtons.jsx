@@ -6,10 +6,9 @@ const ActionButtons = () => {
     <section className="flex gap-12 mb-5 mt-12 justify-center">
 
       {[
-        { icon: <Plus />, label: "Nuevo Producto" },
-        { icon: <ArrowRight />, label: "Registrar Salida" },
+        { icon: <Plus />, label: "Ingreso de Stock" },
+        { icon: <ArrowRight />, label: "Salida de Stock" },
         { icon: <FolderOpen />, label: "Nueva Solicitud" },
-        { icon: <FileText />, label: "Generar Reporte" },
       ].map((btn, i) => (
         <button
           key={i}

@@ -1,61 +1,107 @@
 import React, { useState } from "react";
-import { Plus, Eye, Trash2, Edit, Layers, MapPin } from "lucide-react";
-import ProductForm from "./ProductForm";
+import AccionesProducto from "./AccionesProducto";
+import FormularioProducto from "./FormularioProducto";
+import FormularioCategoria from "../categorias/FormularioCategoria";
+import FormularioUbicacion from "../ubicaciones/FormularioUbicacion";
+import TablaProductos from "./TablaProductos";
+import DetalleProducto from "./DetalleProducto";
 import ActionButtons from "../ActionButtons";
+import Swal from "sweetalert2";
 import AlertBox from "../AlertBox";
 
 const ProductosAlmacen = () => {
-  const [showForm, setShowForm] = useState(false);
+
+  const [currentView, setCurrentView] = useState("acciones");
   const [successMessage, setSuccessMessage] = useState("");
+  const [selectedProducto, setSelectedProducto] = useState(null);
 
-  const handleSave = () => {
-    setShowForm(false);
-    setSuccessMessage("Registro Exitoso");
-
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 3000); // el aviso de registro exitoso se desaparece en 3 segundos
+  const handleAction = (actionID) => {
+    if (actionID === "registrar_pro") setCurrentView("formProducto");
+    if (actionID === "registrar_cat") setCurrentView("formCategoria");
+    if (actionID === "registrar_ubi") setCurrentView("formUbicacion");
+    if (actionID === "ver_pro") setCurrentView("verProductos");
   };
 
-  const actions = [
-    { label: "Registrar Productos", icon: <Plus />, color: "bg-blue-600", action: () => setShowForm(true) },
-    { label: "Editar Productos", icon: <Edit />, color: "bg-blue-600" },
-    { label: "Eliminar Productos", icon: <Trash2 />, color: "bg-blue-600" },
-    { label: "Ver Productos", icon: <Eye />, color: "bg-blue-600" },
-    { label: "Clasificación de Inventario", icon: <Layers />, color: "bg-blue-600" },
-    { label: "Ubicación y Estanterías", icon: <MapPin />, color: "bg-blue-600" },
-  ];
+  const handleSave = () => {
+    setCurrentView("acciones");
+    setSuccessMessage("Registro Exitoso");
+
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
+  // ---- Handlers de tabla ----
+  const handleView = (producto) => {
+    setSelectedProducto(producto);
+    setCurrentView("detalleProducto");
+  };
+
+  const handleEdit = (producto) => {
+    setSelectedProducto(producto);
+    setCurrentView("formProducto");   // Abre el formulario precargado para editar
+  };
+
+  const handleDelete = (producto) => {
+    if (confirm(`¿Seguro que deseas eliminar el producto ${producto.nombre}?`)) {
+      alert("Producto eliminado ✔");
+      // Aquí después va la petición a la BD
+    }
+  };
 
   return (
     <div className="flex flex-col w-full items-center">
-      
+
       {successMessage && (
         <div className="bg-green-600 text-white px-6 py-3 rounded-lg mb-6 shadow-lg font-semibold">
           {successMessage}
         </div>
       )}
 
-      {!showForm && (
+      {currentView === "acciones" && (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full mb-8">
-            {actions.map((btn, i) => (
-              <button
-                key={i}
-                onClick={btn.action}
-                className={`${btn.color} text-white p-10 rounded-2xl flex flex-col justify-center items-center gap-3 shadow-lg hover:bg-blue-700 cursor-pointer transition transform hover:scale-105`}
-              >
-                <div className="text-3xl">{btn.icon}</div>
-                <span className="text-lg font-semibold">{btn.label}</span>
-              </button>
-            ))}
-          </div>
-
+          <AccionesProducto onAction={handleAction} />
           <ActionButtons />
           <AlertBox />
         </>
       )}
 
-      {showForm && <ProductForm onCancel={() => setShowForm(false)} onSave={handleSave} />}
+      {currentView === "formProducto" && (
+        <FormularioProducto
+          producto={selectedProducto} 
+          onCancel={() => setCurrentView("acciones")}
+          onSave={handleSave}
+        />
+      )}
+
+      {currentView === "formCategoria" && (
+        <FormularioCategoria
+          onCancel={() => setCurrentView("acciones")}
+          onSave={handleSave}
+        />
+      )}
+
+      {currentView === "formUbicacion" && (
+        <FormularioUbicacion
+          onCancel={() => setCurrentView("acciones")}
+          onSave={handleSave}
+        />
+      )}
+
+      {currentView === "verProductos" && (
+        <TablaProductos
+          onBack={() => setCurrentView("acciones")}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
+
+      {currentView === "detalleProducto" && (
+        <DetalleProducto
+          producto={selectedProducto}
+          onBack={() => setCurrentView("verProductos")}
+        />
+      )}
+
     </div>
   );
 };

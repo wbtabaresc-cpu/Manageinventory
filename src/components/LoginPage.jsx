@@ -16,23 +16,42 @@ const LoginPage = ({ setAuth }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage("");
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage("");
+  setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      const { username, password } = formData;
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: formData.username,
+        password: formData.password,
+      }),
+    });
 
-      if (username === "admin" && password === "123") {
-        setMessage("Inicio de sesión exitoso.");
-        setAuth(true);
-      } else {
-        setMessage("Usuario o contraseña incorrectos.");
-      }
-    }, 1500);
-  };
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage("Usuario o contraseña incorrectos.");
+      return;
+    }
+
+    // Guardar token y usuario
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    setMessage("Inicio de sesión exitoso.");
+    setAuth(true);
+  } catch (error) {
+    console.error(error);
+    setMessage("No se pudo conectar con el servidor.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (showRegisterAuth) {
     return (

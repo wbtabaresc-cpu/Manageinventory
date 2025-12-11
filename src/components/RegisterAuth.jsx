@@ -10,17 +10,37 @@ const RegisterAuth = ({ onSuccess, onCancel }) => {
     setAuthData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setMessage("");
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage("");
 
-    if (authData.username === "administrador" && authData.password === "123") {
-      setMessage("Autenticación correcta");
-      setTimeout(() => onSuccess(), 1200);
-    } else {
-      setMessage("Usuario o Contraseña incorrectas");
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(authData), // { username, password }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(data.message || "Usuario o Contraseña incorrectas");
+      return;
     }
-  };
+
+    if (data.user.role !== "ADMIN") {
+      setMessage("Este usuario no tiene permisos de administrador");
+      return;
+    }
+
+    setMessage("Autenticación correcta");
+    setTimeout(() => onSuccess(), 1200);
+  } catch (err) {
+    console.error(err);
+    setMessage("No se pudo conectar con el servidor");
+  }
+};
+
 
   return (
     <div

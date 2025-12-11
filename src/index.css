@@ -1,5 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+.btn-card {
+  @apply bg-blue-600 text-white p-10 rounded-2xl flex flex-col justify-center items-center gap-2 shadow-lg cursor-pointer transition transform;
+}
+
+.btn-card:hover {
+  @apply bg-blue-700 scale-105;
+}
+
+.btn-card-icon {
+  @apply text-8xl;
+}
+
+.btn-card-icon svg {
+  @apply w-12 h-12 stroke-[2];
+}
+
+.btn-card p {
+  @apply text-xl font-medium;
+}
