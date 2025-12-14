@@ -1,192 +1,216 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import FormCard from "../ui/FormCard.jsx";
 
-const FormularioProducto = ({ onCancel, onSave, producto }) => {
+const FormularioProducto = ({ producto, onCancel, onSave }) => {
   const [formData, setFormData] = useState({
-    id: "",
-    nombre: "",
-    categoria: "",
-    subcategoria: "",
-    cantidad: "",
-    unidad: "",
-    ubicacion: "",
-    proveedor: "",
-    descripcion: "",
+    _id: "",
+    code: "",
+    name: "",
+    description: "",
+    category: "",
+    subcategory: "",
+    initialQuantity: "",
+    unit: "Unidad",
+    location: "",
+    supplier: "",
   });
 
-  // Cuando producto cambie, precarga los datos
   useEffect(() => {
     if (producto) {
       setFormData({
-        id: producto.id || "",
-        nombre: producto.nombre || "",
-        categoria: producto.categoria || "",
-        subcategoria: producto.subcategoria || "",
-        cantidad: producto.cantidad || "",
-        unidad: producto.unidad || "",
-        ubicacion: producto.ubicacion || "",
-        proveedor: producto.proveedor || "",
-        descripcion: producto.descripcion || "",
+        _id: producto._id || "",
+        code: producto.code || "",
+        name: producto.name || "",
+        description: producto.description || "",
+        category: producto.category || "",
+        subcategory: producto.subcategory || "",
+        initialQuantity:
+          producto.initialQuantity !== undefined && producto.initialQuantity !== null
+            ? String(producto.initialQuantity)
+            : "",
+        unit: producto.unit || "Unidad",
+        location: producto.location || "",
+        supplier: producto.supplier || "",
       });
     }
   }, [producto]);
 
-  // Manejo de inputs controlados
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData); // devuelve los datos al padre
+  const handleSubmit = () => {
+    // Validación básica
+    if (!formData.code.trim()) return alert("El código del producto es obligatorio.");
+    if (!formData.name.trim()) return alert("El nombre del producto es obligatorio.");
+    if (!formData.category.trim()) return alert("La categoría es obligatoria.");
+    if (!formData.location.trim()) return alert("La ubicación es obligatoria.");
+
+    const qty = Number(formData.initialQuantity);
+    if (formData.initialQuantity !== "" && (Number.isNaN(qty) || qty < 0)) {
+      return alert("La cantidad inicial debe ser un número mayor o igual a 0.");
+    }
+
+    onSave({
+      ...formData,
+      initialQuantity: formData.initialQuantity === "" ? 0 : qty,
+    });
   };
 
   return (
-    <form
+    <FormCard
+      title={producto ? "Editar Producto" : "Registrar Nuevo Producto"}
+      subtitle="Complete la información requerida"
+      onCancel={onCancel}
       onSubmit={handleSubmit}
-      className="bg-white p-8 rounded-2xl shadow-lg border flex flex-col gap-6 w-full max-w-3xl"
     >
-      <h3 className="text-2xl font-bold text-gray-700 mb-2">
-        {producto ? "Editar Producto" : "Registrar Nuevo Producto"}
-      </h3>
+      {/* ===================== DATOS DEL PRODUCTO ===================== */}
+      <h3 className="font-semibold text-gray-700 mt-1">Datos del producto</h3>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">ID Producto</label>
+        <label className="text-gray-700 font-semibold">Código *</label>
         <input
-          name="id"
-          value={formData.id}
-          onChange={handleChange}
           type="text"
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+          name="code"
+          value={formData.code}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Ej: A-0001"
+          required
         />
       </div>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Nombre del Producto</label>
+        <label className="text-gray-700 font-semibold">Nombre *</label>
         <input
-          name="nombre"
-          value={formData.nombre}
-          onChange={handleChange}
           type="text"
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-        />
-      </div>
-
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Categoría</label>
-        <select
-          name="categoria"
-          value={formData.categoria}
+          name="name"
+          value={formData.name}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-        >
-          <option value="">Seleccionar categoría</option>
-          <option>Plasticos</option>
-          <option>Celulosas</option>
-          <option>Cajas</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Subcategoría</label>
-        <select
-          name="subcategoria"
-          value={formData.subcategoria}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-        >
-          <option value="">Seleccionar Subcategoría</option>
-          <option>NaloSmart</option>
-          <option>NaloPeel</option>
-          <option>Viga3</option>
-          <option>NaloFibrosa</option>
-          <option>Podanfol</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Cantidad</label>
-        <input
-          name="cantidad"
-          value={formData.cantidad}
-          onChange={handleChange}
-          type="text"
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-        />
-      </div>
-
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Unidad de Medida</label>
-        <select
-          name="unidad"
-          value={formData.unidad}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-        >
-          <option value="">Seleccionar unidad</option>
-          <option>Metros</option>
-          <option>Kilogramos</option>
-          <option>Gramos</option>
-          <option>Unidades</option>
-          <option>Litros</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Ubicación</label>
-        <select
-          name="ubicacion"
-          value={formData.ubicacion}
-          onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
-        >
-          <option value="">Seleccionar ubicación</option>
-          <option>Bodega 1</option>
-          <option>Bodega 2</option>
-          <option>Bodega 3</option>
-          <option>Bodega 4</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Proveedor</label>
-        <input
-          name="proveedor"
-          value={formData.proveedor}
-          onChange={handleChange}
-          type="text"
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Ej: Tinta color azul"
+          required
         />
       </div>
 
       <div className="flex flex-col">
         <label className="text-gray-700 font-semibold">Descripción</label>
         <textarea
-          name="descripcion"
-          value={formData.descripcion}
+          name="description"
+          value={formData.description}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 h-24 resize-none"
-        ></textarea>
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Descripción (opcional)"
+        />
       </div>
 
-      <div className="flex justify-end gap-4 mt-2">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold"
-        >
-          Cancelar
-        </button>
+      {/* ===================== CLASIFICACIÓN ===================== */}
+      <h3 className="font-semibold text-gray-700 mt-3">Clasificación</h3>
 
-        <button
-          type="submit"
-          className="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold"
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold">Categoría *</label>
+        <select
+          name="category"
+          value={formData.category}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          required
         >
-          Guardar
-        </button>
+          <option value="">Seleccionar categoría</option>
+          <option value="Plasticos">Plásticos</option>
+          <option value="Celulosas">Celulosas</option>
+          <option value="Cajas">Cajas</option>
+          <option value="Tintas">Tintas</option>
+          <option value="Mallas">Mallas</option>
+        </select>
       </div>
-    </form>
+
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold">Subcategoría</label>
+        <input
+          type="text"
+          name="subcategory"
+          value={formData.subcategory}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Ej: Insumos, Materia prima, etc."
+        />
+      </div>
+
+      {/* ===================== INVENTARIO / STOCK ===================== */}
+      <h3 className="font-semibold text-gray-700 mt-3">Inventario</h3>
+
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold">Cantidad inicial</label>
+        <input
+          type="number"
+          name="initialQuantity"
+          value={formData.initialQuantity}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="0"
+          min={0}
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Cantidad inicial. Los futuros movimientos se registran en “Movimientos y Stock”.
+        </p>
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold">Unidad</label>
+        <select
+          name="unit"
+          value={formData.unit}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+        >
+          <option value="Unidad">Unidad</option>
+          <option value="Cajas">Cajas</option>
+          <option value="Paquetes">Paquetes</option>
+          <option value="Metros">Metros</option>
+          <option value="Litros">Litros</option>
+          <option value="Galónes">Galónes</option>
+          <option value="Kilogramos">Kilogramos</option>
+        </select>
+      </div>
+
+      {/* ===================== LOGÍSTICA ===================== */}
+      <h3 className="font-semibold text-gray-700 mt-3">Logística</h3>
+
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold">Ubicación *</label>
+        <select
+          name="location"
+          value={formData.location}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          required
+        >
+          <option value="">Seleccionar ubicación</option>
+          <option value="Bodega 1 - Pasillo 1 - Rack A">Bodega 1 - Pasillo 1 - Rack A</option>
+          <option value="Bodega 1 - Pasillo 2 - Rack B">Bodega 1 - Pasillo 2 - Rack B</option>
+          <option value="Bodega 2 - Pasillo 1 - Rack A">Bodega 2 - Pasillo 1 - Rack A</option>
+          <option value="Bodega 3 - Pasillo 4 - Rack C">Bodega 3 - Pasillo 4 - Rack C</option>
+        </select>
+        <p className="text-xs text-gray-500 mt-1">
+          Luego conectaremos este listado con las ubicaciones reales registradas.
+        </p>
+      </div>
+
+      <div className="flex flex-col">
+        <label className="text-gray-700 font-semibold">Proveedor</label>
+        <input
+          type="text"
+          name="supplier"
+          value={formData.supplier}
+          onChange={handleChange}
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          placeholder="Ej: Proveedor ABC"
+        />
+      </div>
+    </FormCard>
   );
 };
 
 export default FormularioProducto;
-

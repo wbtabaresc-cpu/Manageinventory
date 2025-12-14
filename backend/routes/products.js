@@ -3,7 +3,6 @@ const Product = require("../models/Product");
 
 const router = express.Router();
 
-// GET /api/products - list all products
 router.get("/", async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
@@ -14,7 +13,21 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/products - create product
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(product);
+  } catch (err) {
+    console.error("Get product by id error:", err);
+    res.status(500).json({ message: "Error fetching product" });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const {
@@ -29,10 +42,8 @@ router.post("/", async (req, res) => {
       description,
     } = req.body;
 
-    if (!code || !name) {
-      return res
-        .status(400)
-        .json({ message: "Code and name are required" });
+    if (quantity !== undefined && quantity < 0) {
+       return res.status(400).json({ message: "Quantity cannot be negative" });
     }
 
     const existing = await Product.findOne({ code });
@@ -65,7 +76,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /api/products/:id - update product by Mongo _id
 router.put("/:id", async (req, res) => {
   try {
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, {
@@ -83,7 +93,6 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// DELETE /api/products/:id - delete product by Mongo _id
 router.delete("/:id", async (req, res) => {
   try {
     const deleted = await Product.findByIdAndDelete(req.params.id);

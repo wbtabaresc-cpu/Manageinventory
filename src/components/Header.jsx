@@ -17,7 +17,7 @@ const Header = ({ setAuth }) => {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 w-full bg-white shadow-sm z-10 flex justify-between items-center px-8 py-4">
+    <header className="fixed top-0 left-0 w-full bg-white shadow-sm z-10 flex justify-between items-center px-8 h-20">
       {/* Logo y títulos */}
       <div className="flex items-center gap-4">
         <img src="/img/Logo.png" alt="Logo" className="w-28 h-18" />

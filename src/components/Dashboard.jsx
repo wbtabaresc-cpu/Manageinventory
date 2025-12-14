@@ -17,9 +17,10 @@ const Dashboard = ({ setAuth }) => {
       <div className="flex-1 flex flex-col">
         <Header setAuth={setAuth} />
 
-        <main className="flex-1 p-6 mt-[120px] bg-transparent">
-          <MainContent activeSection={activeSection} />
+        <main className="flex-1 px-6 pt-24 pb-6 bg-transparent">
+        <MainContent activeSection={activeSection} />
         </main>
+
       </div>
     </div>
   );
