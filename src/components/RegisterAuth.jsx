@@ -18,7 +18,7 @@ const RegisterAuth = ({ onSuccess, onCancel }) => {
     const res = await fetch("http://localhost:5000/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(authData), // { username, password }
+      body: JSON.stringify(authData),
     });
 
     const data = await res.json();

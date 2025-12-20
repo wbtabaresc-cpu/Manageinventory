@@ -1,4 +1,4 @@
-const mongoose = require("mongoose"); // ✅ ESTA LÍNEA DEBE EXISTIR
+const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema({
   code: { type: String, required: true, unique: true },

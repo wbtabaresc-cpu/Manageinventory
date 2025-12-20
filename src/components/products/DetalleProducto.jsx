@@ -3,7 +3,6 @@ import React from "react";
 const DetalleProducto = ({ producto, onBack }) => {
   if (!producto) return null;
 
-  // Fallback: soporta backend (inglés) y lo viejo (español)
   const code = producto.code || producto.id || "";
   const name = producto.name || producto.nombre || "";
   const category = producto.category || producto.categoria || "";

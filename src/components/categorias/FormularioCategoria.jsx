@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import FormCard from "../ui/FormCard";
 
 const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
   const [formData, setFormData] = useState({
+    _id: "",
     nombre: "",
     descripcion: "",
     estado: "Activo",
@@ -10,10 +11,20 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
 
   useEffect(() => {
     if (categoria) {
+      const rawStatus = categoria.status ?? categoria.estado;
+
       setFormData({
-        nombre: categoria.nombre || "",
-        descripcion: categoria.descripcion || "",
-        estado: categoria.estado || "Activo",
+        _id: categoria._id ?? "",
+        nombre: categoria.name ?? categoria.nombre ?? "",
+        descripcion: categoria.description ?? categoria.descripcion ?? "",
+        estado: rawStatus === "INACTIVE" || rawStatus === "Inactivo" ? "Inactivo" : "Activo",
+      });
+    } else {
+      setFormData({
+        _id: "",
+        nombre: "",
+        descripcion: "",
+        estado: "Activo",
       });
     }
   }, [categoria]);
@@ -24,7 +35,19 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
   };
 
   const handleSubmit = () => {
-    onSave(formData);
+    const name = (formData.nombre || "").trim();
+    if (!name) return alert("El nombre de la categoría es obligatorio.");
+
+    const status = formData.estado === "Inactivo" ? "INACTIVE" : "ACTIVE";
+
+    const payload = {
+      ...(formData._id ? { _id: formData._id } : {}),
+      name,
+      description: formData.descripcion || "",
+      status,
+    };
+
+    onSave(payload);
   };
 
   return (

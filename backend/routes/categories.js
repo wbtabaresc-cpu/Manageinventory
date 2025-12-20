@@ -26,17 +26,25 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, description, status } = req.body;
+    let { name, description, status } = req.body;
 
-    if (!name) return res.status(400).json({ message: "Name is required" });
+    if (!name || !String(name).trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    name = String(name).trim();
+
+    if (status === "Activo") status = "ACTIVE";
+    if (status === "Inactivo") status = "INACTIVE";
+    status = status || "ACTIVE";
 
     const existing = await Category.findOne({ name });
     if (existing) return res.status(400).json({ message: "Category already exists" });
 
     const category = await Category.create({
-      name: name.trim(),
+      name,
       description: description || "",
-      status: status || "ACTIVE",
+      status,
     });
 
     res.status(201).json({ message: "Category created successfully", category });
@@ -48,10 +56,34 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   try {
-    const updated = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updated) return res.status(404).json({ message: "Category not found" });
+    let { name, description, status } = req.body;
 
-    res.json({ message: "Category updated", category: updated });
+    const category = await Category.findById(req.params.id);
+    if (!category) return res.status(404).json({ message: "Category not found" });
+
+    if (typeof name === "string") name = name.trim();
+
+    if (status === "Activo") status = "ACTIVE";
+    if (status === "Inactivo") status = "INACTIVE";
+
+    if (name && name.toLowerCase() !== (category.name || "").trim().toLowerCase()) {
+      const existing = await Category.findOne({
+        name,
+        _id: { $ne: category._id },
+      });
+
+      if (existing) {
+        return res.status(400).json({ message: "Category already exists" });
+      }
+
+      category.name = name;
+    }
+
+    if (description !== undefined) category.description = description;
+    if (status !== undefined) category.status = status;
+
+    await category.save();
+    res.json({ message: "Category updated", category });
   } catch (err) {
     console.error("Update category error:", err);
     res.status(500).json({ message: "Error updating category" });

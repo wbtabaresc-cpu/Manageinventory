@@ -3,6 +3,7 @@ import FormCard from "../ui/FormCard.jsx";
 
 const FormularioUbicacion = ({ location, onCancel, onSave }) => {
   const [formData, setFormData] = useState({
+    _id: "",
     warehouse: "",
     aisle: "",
     rack: "",
@@ -12,17 +13,24 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
 
   useEffect(() => {
     if (location) {
+      const rawStatus = location.status;
+
       setFormData({
+        _id: location._id ?? "",
         warehouse: location.warehouse ?? "",
         aisle: location.aisle ?? "",
         rack: location.rack ?? "",
         description: location.description ?? "",
-        status:
-          location.status === "INACTIVE"
-            ? "Inactivo"
-            : location.status === "ACTIVE"
-            ? "Activo"
-            : "Activo",
+        status: rawStatus === "INACTIVE" ? "Inactivo" : "Activo",
+      });
+    } else {
+      setFormData({
+        _id: "",
+        warehouse: "",
+        aisle: "",
+        rack: "",
+        description: "",
+        status: "Activo",
       });
     }
   }, [location]);
@@ -33,8 +41,20 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
   };
 
   const handleSubmit = () => {
-   
-    onSave(formData);
+    if (formData.warehouse === "") return alert("Seleccione la bodega.");
+    if (formData.aisle === "") return alert("Seleccione el pasillo.");
+    if (!String(formData.rack || "").trim()) return alert("Seleccione el rack.");
+
+    const payload = {
+      ...(formData._id ? { _id: formData._id } : {}),
+      warehouse: Number(formData.warehouse),
+      aisle: Number(formData.aisle),
+      rack: String(formData.rack).trim(),
+      description: formData.description || "",
+      status: formData.status === "Inactivo" ? "INACTIVE" : "ACTIVE",
+    };
+
+    onSave(payload);
   };
 
   return (
@@ -45,14 +65,12 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">
-          Número de Bodega
-        </label>
+        <label className="text-gray-700 font-semibold">Número de Bodega</label>
         <select
           name="warehouse"
           value={formData.warehouse}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
           required
         >
           <option value="">Seleccionar Bodega</option>
@@ -69,7 +87,7 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
           name="aisle"
           value={formData.aisle}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
           required
         >
           <option value="">Seleccionar Pasillo</option>
@@ -82,12 +100,12 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
       </div>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Número de Rack</label>
+        <label className="text-gray-700 font-semibold">Rack</label>
         <select
           name="rack"
           value={formData.rack}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
           required
         >
           <option value="">Seleccionar Rack</option>
@@ -104,9 +122,9 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-600"
-          placeholder="Descripción de la ubicación (opcional)"
-        ></textarea>
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 h-24 resize-none"
+          placeholder="Descripción (opcional)"
+        />
       </div>
 
       <div className="flex flex-col">
@@ -115,7 +133,7 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
           name="status"
           value={formData.status}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
         >
           <option value="Activo">Activo</option>
           <option value="Inactivo">Inactivo</option>
@@ -126,4 +144,3 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
 };
 
 export default FormularioUbicacion;
-

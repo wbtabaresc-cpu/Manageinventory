@@ -1,4 +1,3 @@
-// src/components/ui/FormCard.jsx
 import React from "react";
 
 const FormCard = ({
@@ -14,7 +13,7 @@ const FormCard = ({
     <div className="w-full flex flex-col justify-start items-center px-6 py-10">
       <div className="bg-white p-8 rounded-2xl shadow-xl border w-full max-w-lg flex flex-col gap-5">
 
-        {/* Títulos */}
+
         <h2 className="text-3xl font-bold text-gray-700 text-center">{title}</h2>
 
         {subtitle && (
@@ -23,7 +22,7 @@ const FormCard = ({
           </h3>
         )}
 
-        {/* Contenido del formulario */}
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -33,7 +32,7 @@ const FormCard = ({
         >
           {children}
 
-          {/* Footer de botones */}
+
           <div className="flex justify-end gap-4 mt-2">
             {onCancel && (
               <button

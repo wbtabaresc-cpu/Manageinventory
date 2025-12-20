@@ -35,7 +35,7 @@ const RegisterUserForm = ({ onCancel }) => {
           email: formData.email,
           username: formData.username,
           password: formData.password,
-          role: formData.role, // ADMIN, SUPERVISOR, etc.
+          role: formData.role,
         }),
       });
 
@@ -47,8 +47,6 @@ const RegisterUserForm = ({ onCancel }) => {
       }
 
       setMessage("Usuario registrado correctamente");
-      // Si quieres, puedes volver automáticamente al login:
-      // setTimeout(onCancel, 1500);
     } catch (err) {
       console.error(err);
       setMessage("No se pudo conectar con el servidor");

@@ -8,12 +8,12 @@ const Dashboard = ({ setAuth }) => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Menu con barra lateral fija */}
+
       <Sidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection} 
       />
-      {/* Contenedor de los botones principales */}
+
       <div className="flex-1 flex flex-col">
         <Header setAuth={setAuth} />
 

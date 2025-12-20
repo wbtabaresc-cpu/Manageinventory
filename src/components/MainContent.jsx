@@ -13,7 +13,6 @@ import ProductosAlmacen from "./products/ProductosAlmacen";
 
 const MainContent = ({ activeSection }) => {
 
-  // inicio
   if (activeSection === "inicio") {
     return (
       <div className="flex flex-col items-center w-full px-6 pt-20">
@@ -45,7 +44,6 @@ const MainContent = ({ activeSection }) => {
     );
   }
 
- // Productos y almacen
 if (activeSection === "productos") {
   return (
     <div className="flex flex-col items-center w-full px-6 pt-20">
@@ -61,7 +59,6 @@ if (activeSection === "productos") {
 
 
 
-  // Contenedor base para futuras secciones del sistem
   return (
     <div className="px-6 pt-20">
       <h2 className="text-2xl font-bold text-gray-700 capitalize mb-6">

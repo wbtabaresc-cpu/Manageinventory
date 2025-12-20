@@ -5,7 +5,7 @@ const Header = ({ setAuth }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  // se cierra el menu contextual del usuario si se hace clic por fuera
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -18,7 +18,7 @@ const Header = ({ setAuth }) => {
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-sm z-10 flex justify-between items-center px-8 h-20">
-      {/* Logo y títulos */}
+
       <div className="flex items-center gap-4">
         <img src="/img/Logo.png" alt="Logo" className="w-28 h-18" />
         <div>
@@ -27,12 +27,12 @@ const Header = ({ setAuth }) => {
         </div>
       </div>
 
-      {/* Íconos fijos de usuario, mensajes y notificaciones*/}
+
       <div className="flex gap-8 text-blue-600 items-center relative" ref={menuRef}>
         <Bell className="w-9 h-9 cursor-pointer hover:text-gray-600 transition-transform hover:scale-110" />
         <Mail className="w-9 h-9 cursor-pointer hover:text-gray-600 transition-transform hover:scale-110" />
 
-        {/* Usuario con menu desplegable */}
+
         <div className="relative">
           <User
             className="w-9 h-9 cursor-pointer hover:text-gray-600 transition-transform hover:scale-110"

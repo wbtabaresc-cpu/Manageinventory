@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import FormCard from "../ui/FormCard.jsx";
 
+const API_URL = "http://localhost:5000";
+
+const normalizeStatus = (s) => {
+  if (!s) return "ACTIVE";
+  if (s === "Activo") return "ACTIVE";
+  if (s === "Inactivo") return "INACTIVE";
+  return s;
+};
+
 const FormularioProducto = ({ producto, onCancel, onSave }) => {
   const [formData, setFormData] = useState({
     _id: "",
@@ -15,6 +24,11 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
     supplier: "",
   });
 
+  const [categories, setCategories] = useState([]);
+  const [locations, setLocations] = useState([]);
+  const [loadingCats, setLoadingCats] = useState(false);
+  const [loadingLocs, setLoadingLocs] = useState(false);
+
   useEffect(() => {
     if (producto) {
       setFormData({
@@ -27,6 +41,8 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
         initialQuantity:
           producto.initialQuantity !== undefined && producto.initialQuantity !== null
             ? String(producto.initialQuantity)
+            : producto.quantity !== undefined && producto.quantity !== null
+            ? String(producto.quantity)
             : "",
         unit: producto.unit || "Unidad",
         location: producto.location || "",
@@ -35,13 +51,68 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
     }
   }, [producto]);
 
+  useEffect(() => {
+    const loadCategories = async () => {
+      setLoadingCats(true);
+      try {
+        const res = await fetch(`${API_URL}/api/categories`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.message || "Error cargando categorías");
+          return;
+        }
+
+        const active = (Array.isArray(data) ? data : []).filter(
+          (c) => normalizeStatus(c.status) !== "INACTIVE"
+        );
+
+        setCategories(active);
+      } catch (err) {
+        console.error(err);
+        alert("No se pudo conectar con el servidor para cargar categorías.");
+      } finally {
+        setLoadingCats(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    const loadLocations = async () => {
+      setLoadingLocs(true);
+      try {
+        const res = await fetch(`${API_URL}/api/locations`);
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.message || "Error cargando ubicaciones");
+          return;
+        }
+
+        const active = (Array.isArray(data) ? data : []).filter(
+          (l) => normalizeStatus(l.status) !== "INACTIVE"
+        );
+
+        setLocations(active);
+      } catch (err) {
+        console.error(err);
+        alert("No se pudo conectar con el servidor para cargar ubicaciones.");
+      } finally {
+        setLoadingLocs(false);
+      }
+    };
+
+    loadLocations();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
-    // Validación básica
     if (!formData.code.trim()) return alert("El código del producto es obligatorio.");
     if (!formData.name.trim()) return alert("El nombre del producto es obligatorio.");
     if (!formData.category.trim()) return alert("La categoría es obligatoria.");
@@ -65,7 +136,6 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
       onCancel={onCancel}
       onSubmit={handleSubmit}
     >
-      {/* ===================== DATOS DEL PRODUCTO ===================== */}
       <h3 className="font-semibold text-gray-700 mt-1">Datos del producto</h3>
 
       <div className="flex flex-col">
@@ -105,7 +175,6 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
         />
       </div>
 
-      {/* ===================== CLASIFICACIÓN ===================== */}
       <h3 className="font-semibold text-gray-700 mt-3">Clasificación</h3>
 
       <div className="flex flex-col">
@@ -117,13 +186,23 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
           className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
         >
-          <option value="">Seleccionar categoría</option>
-          <option value="Plasticos">Plásticos</option>
-          <option value="Celulosas">Celulosas</option>
-          <option value="Cajas">Cajas</option>
-          <option value="Tintas">Tintas</option>
-          <option value="Mallas">Mallas</option>
+          <option value="">
+            {loadingCats ? "Cargando categorías..." : "Seleccionar categoría"}
+          </option>
+
+          {!loadingCats &&
+            categories.map((c) => (
+              <option key={c._id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
         </select>
+
+        {!loadingCats && categories.length === 0 && (
+          <p className="text-xs text-red-600 mt-1">
+            No hay categorías ACTIVAS registradas. Crea una categoría primero.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col">
@@ -138,7 +217,6 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
         />
       </div>
 
-      {/* ===================== INVENTARIO / STOCK ===================== */}
       <h3 className="font-semibold text-gray-700 mt-3">Inventario</h3>
 
       <div className="flex flex-col">
@@ -175,7 +253,6 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
         </select>
       </div>
 
-      {/* ===================== LOGÍSTICA ===================== */}
       <h3 className="font-semibold text-gray-700 mt-3">Logística</h3>
 
       <div className="flex flex-col">
@@ -187,15 +264,23 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
           className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
           required
         >
-          <option value="">Seleccionar ubicación</option>
-          <option value="Bodega 1 - Pasillo 1 - Rack A">Bodega 1 - Pasillo 1 - Rack A</option>
-          <option value="Bodega 1 - Pasillo 2 - Rack B">Bodega 1 - Pasillo 2 - Rack B</option>
-          <option value="Bodega 2 - Pasillo 1 - Rack A">Bodega 2 - Pasillo 1 - Rack A</option>
-          <option value="Bodega 3 - Pasillo 4 - Rack C">Bodega 3 - Pasillo 4 - Rack C</option>
+          <option value="">
+            {loadingLocs ? "Cargando ubicaciones..." : "Seleccionar ubicación"}
+          </option>
+
+          {!loadingLocs &&
+            locations.map((l) => (
+              <option key={l._id} value={l.label}>
+                {l.label}
+              </option>
+            ))}
         </select>
-        <p className="text-xs text-gray-500 mt-1">
-          Luego conectaremos este listado con las ubicaciones reales registradas.
-        </p>
+
+        {!loadingLocs && locations.length === 0 && (
+          <p className="text-xs text-red-600 mt-1">
+            No hay ubicaciones ACTIVAS registradas. Crea una ubicación primero.
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col">
