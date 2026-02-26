@@ -11,6 +11,9 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
     status: "Activo",
   });
 
+  // Recuperamos el token para validación de seguridad previa al envío
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     if (location) {
       const rawStatus = location.status;
@@ -41,9 +44,15 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
   };
 
   const handleSubmit = () => {
+    // Validaciones de negocio requeridas
     if (formData.warehouse === "") return alert("Seleccione la bodega.");
     if (formData.aisle === "") return alert("Seleccione el pasillo.");
     if (!String(formData.rack || "").trim()) return alert("Seleccione el rack.");
+
+    // Validación de seguridad: Integración con el sistema de autenticación
+    if (!token) {
+      return alert("Su sesión ha expirado. Por favor, ingrese de nuevo para realizar esta acción.");
+    }
 
     const payload = {
       ...(formData._id ? { _id: formData._id } : {}),
@@ -54,23 +63,24 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
       status: formData.status === "Inactivo" ? "INACTIVE" : "ACTIVE",
     };
 
+    // Envía el payload al método handleSaveLocation de ProductosAlmacen.jsx
     onSave(payload);
   };
 
   return (
     <FormCard
       title={location ? "Editar Ubicación" : "Registrar Nueva Ubicación"}
-      subtitle="Complete la información requerida"
+      subtitle="Defina la posición física en el almacén"
       onCancel={onCancel}
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Número de Bodega</label>
+        <label className="text-gray-700 font-semibold">Número de Bodega *</label>
         <select
           name="warehouse"
           value={formData.warehouse}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
           required
         >
           <option value="">Seleccionar Bodega</option>
@@ -82,30 +92,28 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
       </div>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Número de Pasillo</label>
+        <label className="text-gray-700 font-semibold">Número de Pasillo *</label>
         <select
           name="aisle"
           value={formData.aisle}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
           required
         >
           <option value="">Seleccionar Pasillo</option>
-          <option value="1">Pasillo 1</option>
-          <option value="2">Pasillo 2</option>
-          <option value="3">Pasillo 3</option>
-          <option value="4">Pasillo 4</option>
-          <option value="5">Pasillo 5</option>
+          {[1, 2, 3, 4, 5].map(n => (
+            <option key={n} value={n}>Pasillo {n}</option>
+          ))}
         </select>
       </div>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Rack</label>
+        <label className="text-gray-700 font-semibold">Rack / Estantería *</label>
         <select
           name="rack"
           value={formData.rack}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
           required
         >
           <option value="">Seleccionar Rack</option>
@@ -117,26 +125,26 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
       </div>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Descripción</label>
+        <label className="text-gray-700 font-semibold">Descripción de la ubicación</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 h-24 resize-none"
-          placeholder="Descripción (opcional)"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 h-24 resize-none focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+          placeholder="Ej: Esquina norte, nivel superior..."
         />
       </div>
 
       <div className="flex flex-col">
-        <label className="text-gray-700 font-semibold">Estado</label>
+        <label className="text-gray-700 font-semibold">Estado de disponibilidad</label>
         <select
           name="status"
           value={formData.status}
           onChange={handleChange}
-          className="border border-gray-300 rounded-lg px-4 py-2 mt-1"
+          className="border border-gray-300 rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-blue-600 outline-none transition-all"
         >
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
+          <option value="Activo">Activo (Disponible)</option>
+          <option value="Inactivo">Inactivo (Mantenimiento/Lleno)</option>
         </select>
       </div>
     </FormCard>

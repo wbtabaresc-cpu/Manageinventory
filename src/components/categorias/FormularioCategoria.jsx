@@ -9,6 +9,10 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
     estado: "Activo",
   });
 
+  // Aunque el 'onSave' del padre ya usa el token, 
+  // es buena práctica tener acceso a él aquí por si necesitas validar algo.
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     if (categoria) {
       const rawStatus = categoria.status ?? categoria.estado;
@@ -16,7 +20,7 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
       setFormData({
         _id: categoria._id ?? "",
         nombre: categoria.name ?? categoria.nombre ?? "",
-        descripcion: categoria.description ?? categoria.descripcion ?? "",
+        description: categoria.description ?? categoria.descripcion ?? "",
         estado: rawStatus === "INACTIVE" || rawStatus === "Inactivo" ? "Inactivo" : "Activo",
       });
     } else {
@@ -37,6 +41,9 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
   const handleSubmit = () => {
     const name = (formData.nombre || "").trim();
     if (!name) return alert("El nombre de la categoría es obligatorio.");
+    
+    // Verificación de seguridad básica antes de enviar
+    if (!token) return alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
 
     const status = formData.estado === "Inactivo" ? "INACTIVE" : "ACTIVE";
 
@@ -47,6 +54,8 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
       status,
     };
 
+    // Esto envía los datos a handleSaveCategory en ProductosAlmacen.jsx
+    // la cual ya actualizamos con los headers de Authorization.
     onSave(payload);
   };
 
@@ -57,33 +66,42 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
       onCancel={onCancel}
       onSubmit={handleSubmit}
     >
-      <input
-        type="text"
-        name="nombre"
-        placeholder="Nombre de la categoría"
-        value={formData.nombre}
-        onChange={handleChange}
-        className="border px-4 py-2 rounded-lg"
-        required
-      />
+      <div className="flex flex-col gap-1">
+        <label className="text-gray-700 font-semibold">Nombre de la categoría *</label>
+        <input
+          type="text"
+          name="nombre"
+          placeholder="Ej: Insumos de Oficina"
+          value={formData.nombre}
+          onChange={handleChange}
+          className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
+          required
+        />
+      </div>
 
-      <textarea
-        name="descripcion"
-        placeholder="Descripción (opcional)"
-        value={formData.descripcion}
-        onChange={handleChange}
-        className="border px-4 py-2 rounded-lg h-24 resize-none"
-      />
+      <div className="flex flex-col gap-1">
+        <label className="text-gray-700 font-semibold">Descripción</label>
+        <textarea
+          name="descripcion"
+          placeholder="Breve descripción de los artículos de esta categoría"
+          value={formData.descripcion}
+          onChange={handleChange}
+          className="border border-gray-300 px-4 py-2 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
 
-      <select
-        name="estado"
-        value={formData.estado}
-        onChange={handleChange}
-        className="border px-4 py-2 rounded-lg"
-      >
-        <option value="Activo">Activo</option>
-        <option value="Inactivo">Inactivo</option>
-      </select>
+      <div className="flex flex-col gap-1">
+        <label className="text-gray-700 font-semibold">Estado</label>
+        <select
+          name="estado"
+          value={formData.estado}
+          onChange={handleChange}
+          className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
+        >
+          <option value="Activo">Activo</option>
+          <option value="Inactivo">Inactivo</option>
+        </select>
+      </div>
     </FormCard>
   );
 };

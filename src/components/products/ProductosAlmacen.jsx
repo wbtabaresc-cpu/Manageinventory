@@ -35,6 +35,9 @@ const ProductosAlmacen = () => {
   const [locations, setLocations] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
 
+  // Recuperamos el token del localStorage
+  const token = localStorage.getItem("token");
+
   const showSuccess = (msg) => {
     setSuccessMessage(msg);
     setTimeout(() => setSuccessMessage(""), 2500);
@@ -43,14 +46,14 @@ const ProductosAlmacen = () => {
   const loadProducts = async () => {
     setLoadingProducts(true);
     try {
-      const res = await fetch(`${API_URL}/api/products`);
+      const res = await fetch(`${API_URL}/api/products`, {
+        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+      });
       const data = await res.json();
-
       if (!res.ok) {
         alert(data.message || "Error cargando productos");
         return;
       }
-
       setProducts(data);
     } catch (err) {
       console.error(err);
@@ -63,14 +66,14 @@ const ProductosAlmacen = () => {
   const loadCategories = async () => {
     setLoadingCategories(true);
     try {
-      const res = await fetch(`${API_URL}/api/categories`);
+      const res = await fetch(`${API_URL}/api/categories`, {
+        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+      });
       const data = await res.json();
-
       if (!res.ok) {
         alert(data.message || "Error cargando categorías");
         return;
       }
-
       setCategories(data);
     } catch (err) {
       console.error(err);
@@ -83,14 +86,14 @@ const ProductosAlmacen = () => {
   const loadLocations = async () => {
     setLoadingLocations(true);
     try {
-      const res = await fetch(`${API_URL}/api/locations`);
+      const res = await fetch(`${API_URL}/api/locations`, {
+        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+      });
       const data = await res.json();
-
       if (!res.ok) {
         alert(data.message || "Error cargando ubicaciones");
         return;
       }
-
       setLocations(data);
     } catch (err) {
       console.error(err);
@@ -101,25 +104,24 @@ const ProductosAlmacen = () => {
   };
 
   useEffect(() => {
-    loadProducts();
-    loadCategories();
-    loadLocations();
-  }, []);
+    if (token) {
+      loadProducts();
+      loadCategories();
+      loadLocations();
+    }
+  }, [token]);
 
   const handleAction = (actionID) => {
-
     if (actionID === "registrar_pro") {
       setSelectedProducto(null);
       setCurrentView("formProducto");
     }
     if (actionID === "ver_pro") setCurrentView("verProductos");
-
     if (actionID === "registrar_cat") {
       setSelectedCategoria(null);
       setCurrentView("formCategoria");
     }
     if (actionID === "ver_cat") setCurrentView("verCategorias");
-
     if (actionID === "registrar_ubi") {
       setSelectedUbicacion(null);
       setCurrentView("formUbicacion");
@@ -130,7 +132,6 @@ const ProductosAlmacen = () => {
   const handleSaveProduct = async (p) => {
     try {
       const qty = Number(p.initialQuantity) || 0;
-
       const payload = {
         code: p.code,
         name: p.name,
@@ -144,39 +145,33 @@ const ProductosAlmacen = () => {
         description: p.description,
       };
 
-      let res;
-      let data;
+      let res, data;
+      const headers = { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` // INTEGRACIÓN SEGURIDAD
+      };
 
       if (p._id) {
         res = await fetch(`${API_URL}/api/products/${p._id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(payload),
         });
-        data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Error actualizando producto");
-          return;
-        }
-
-        showSuccess("Producto actualizado correctamente");
       } else {
         res = await fetch(`${API_URL}/api/products`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers,
           body: JSON.stringify(payload),
         });
-        data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Error registrando producto");
-          return;
-        }
-
-        showSuccess("Producto registrado correctamente");
       }
 
+      data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Error al guardar producto");
+        return;
+      }
+
+      showSuccess(p._id ? "Producto actualizado correctamente" : "Producto registrado correctamente");
       await loadProducts();
       setSelectedProducto(null);
       setCurrentView("acciones");
@@ -186,218 +181,88 @@ const ProductosAlmacen = () => {
     }
   };
 
-  const handleViewProduct = (producto) => {
-    setSelectedProducto(producto);
-    setCurrentView("detalleProducto");
-  };
-
-  const handleEditProduct = (producto) => {
-    setSelectedProducto(producto);
-    setCurrentView("formProducto");
-  };
-
   const handleDeleteProduct = async (producto) => {
-    if (!producto?._id) {
-      alert("No se puede eliminar: falta el _id del producto.");
-      return;
-    }
-
-    const ok = confirm(`¿Seguro que deseas eliminar el producto "${producto.name}"?`);
+    if (!producto?._id) return;
+    const ok = confirm(`¿Seguro que deseas eliminar "${producto.name}"?`);
     if (!ok) return;
 
     try {
       const res = await fetch(`${API_URL}/api/products/${producto._id}`, {
         method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
       });
-      const data = await res.json();
-
       if (!res.ok) {
+        const data = await res.json();
         alert(data.message || "Error eliminando producto");
         return;
       }
-
       await loadProducts();
       showSuccess("Producto eliminado correctamente");
     } catch (err) {
       console.error(err);
-      alert("No se pudo eliminar el producto.");
     }
   };
+
+  // --- MÉTODOS SIMILARES PARA CATEGORÍAS Y UBICACIONES (También con Token) ---
 
   const handleSaveCategory = async (c) => {
     try {
-      const payload = {
-        name: (c.name || "").trim(),
-        description: c.description || "",
-        status: c.status || "ACTIVE",
-      };
-
-      let res, data;
-
-      if (c._id) {
-        res = await fetch(`${API_URL}/api/categories/${c._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Error actualizando categoría");
-          return;
-        }
-
-        showSuccess("Categoría actualizada correctamente");
-      } else {
-        res = await fetch(`${API_URL}/api/categories`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Error registrando categoría");
-          return;
-        }
-
-        showSuccess("Categoría registrada correctamente");
-      }
-
+      const payload = { name: (c.name || "").trim(), description: c.description || "", status: c.status || "ACTIVE" };
+      const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${token}` };
+      const res = await fetch(`${API_URL}/api/categories${c._id ? `/${c._id}` : ""}`, {
+        method: c._id ? "PUT" : "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) return alert("Error al guardar categoría");
+      showSuccess("Categoría guardada correctamente");
       await loadCategories();
-      setSelectedCategoria(null);
       setCurrentView("acciones");
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo guardar la categoría.");
-    }
-  };
-
-  const handleViewCategory = (c) => {
-    setSelectedCategoria(c);
-    setCurrentView("detalleCategoria");
-  };
-
-  const handleEditCategory = (c) => {
-    setSelectedCategoria(c);
-    setCurrentView("formCategoria");
+    } catch (err) { console.error(err); }
   };
 
   const handleDeleteCategory = async (c) => {
-    if (!c?._id) {
-      alert("No se puede eliminar: falta el _id de la categoría.");
-      return;
-    }
-
-    const ok = confirm(`¿Seguro que deseas eliminar la categoría "${c.name}"?`);
-    if (!ok) return;
-
+    if (!confirm("¿Eliminar categoría?")) return;
     try {
       const res = await fetch(`${API_URL}/api/categories/${c._id}`, {
         method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Error eliminando categoría");
-        return;
-      }
-
-      await loadCategories();
-      showSuccess("Categoría eliminada correctamente");
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo eliminar la categoría.");
-    }
+      if (res.ok) { loadCategories(); showSuccess("Eliminada"); }
+    } catch (err) { console.error(err); }
   };
+
   const handleSaveLocation = async (l) => {
     try {
-      const payload = {
-        warehouse: Number(l.warehouse),
-        aisle: Number(l.aisle),
-        rack: (l.rack || "").trim(),
-        description: l.description || "",
-        status: l.status || "ACTIVE",
-      };
-
-      let res, data;
-
-      if (l._id) {
-        res = await fetch(`${API_URL}/api/locations/${l._id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Error actualizando ubicación");
-          return;
-        }
-
-        showSuccess("Ubicación actualizada correctamente");
-      } else {
-        res = await fetch(`${API_URL}/api/locations`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        data = await res.json();
-
-        if (!res.ok) {
-          alert(data.message || "Error registrando ubicación");
-          return;
-        }
-
-        showSuccess("Ubicación registrada correctamente");
-      }
-
-      await loadLocations();
-      setSelectedUbicacion(null);
-      setCurrentView("acciones");
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo guardar la ubicación.");
-    }
-  };
-
-  const handleViewLocation = (l) => {
-    setSelectedUbicacion(l);
-    setCurrentView("detalleUbicacion");
-  };
-
-  const handleEditLocation = (l) => {
-    setSelectedUbicacion(l);
-    setCurrentView("formUbicacion");
+      const payload = { warehouse: Number(l.warehouse), aisle: Number(l.aisle), rack: l.rack, description: l.description, status: l.status };
+      const res = await fetch(`${API_URL}/api/locations${l._id ? `/${l._id}` : ""}`, {
+        method: l._id ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) { loadLocations(); showSuccess("Ubicación guardada"); setCurrentView("acciones"); }
+    } catch (err) { console.error(err); }
   };
 
   const handleDeleteLocation = async (l) => {
-    if (!l?._id) {
-      alert("No se puede eliminar: falta el _id de la ubicación.");
-      return;
-    }
-
-    const ok = confirm(`¿Seguro que deseas eliminar la ubicación "${l.label || l.rack}"?`);
-    if (!ok) return;
-
+    if (!confirm("¿Eliminar ubicación?")) return;
     try {
       const res = await fetch(`${API_URL}/api/locations/${l._id}`, {
         method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.message || "Error eliminando ubicación");
-        return;
-      }
-
-      await loadLocations();
-      showSuccess("Ubicación eliminada correctamente");
-    } catch (err) {
-      console.error(err);
-      alert("No se pudo eliminar la ubicación.");
-    }
+      if (res.ok) { loadLocations(); showSuccess("Eliminada"); }
+    } catch (err) { console.error(err); }
   };
+
+  // --- RENDERIZADO (Se mantiene igual que el tuyo) ---
+
+  const handleViewProduct = (p) => { setSelectedProducto(p); setCurrentView("detalleProducto"); };
+  const handleEditProduct = (p) => { setSelectedProducto(p); setCurrentView("formProducto"); };
+  const handleViewCategory = (c) => { setSelectedCategoria(c); setCurrentView("detalleCategoria"); };
+  const handleEditCategory = (c) => { setSelectedCategoria(c); setCurrentView("formCategoria"); };
+  const handleViewLocation = (l) => { setSelectedUbicacion(l); setCurrentView("detalleUbicacion"); };
+  const handleEditLocation = (l) => { setSelectedUbicacion(l); setCurrentView("formUbicacion"); };
 
   return (
     <div className="flex flex-col w-full items-center px-6">
@@ -418,10 +283,7 @@ const ProductosAlmacen = () => {
       {currentView === "formProducto" && (
         <FormularioProducto
           producto={selectedProducto}
-          onCancel={() => {
-            setSelectedProducto(null);
-            setCurrentView("acciones");
-          }}
+          onCancel={() => { setSelectedProducto(null); setCurrentView("acciones"); }}
           onSave={handleSaveProduct}
         />
       )}
@@ -429,7 +291,6 @@ const ProductosAlmacen = () => {
       {currentView === "verProductos" && (
         <>
           {loadingProducts && <div className="text-gray-600 mb-3">Cargando productos...</div>}
-
           <TablaProductos
             products={products}
             onBack={() => setCurrentView("acciones")}
@@ -447,10 +308,7 @@ const ProductosAlmacen = () => {
       {currentView === "formCategoria" && (
         <FormularioCategoria
           categoria={selectedCategoria}
-          onCancel={() => {
-            setSelectedCategoria(null);
-            setCurrentView("acciones");
-          }}
+          onCancel={() => { setSelectedCategoria(null); setCurrentView("acciones"); }}
           onSave={handleSaveCategory}
         />
       )}
@@ -458,7 +316,6 @@ const ProductosAlmacen = () => {
       {currentView === "verCategorias" && (
         <>
           {loadingCategories && <div className="text-gray-600 mb-3">Cargando categorías...</div>}
-
           <TablaCategorias
             categories={categories}
             onBack={() => setCurrentView("acciones")}
@@ -476,10 +333,7 @@ const ProductosAlmacen = () => {
       {currentView === "formUbicacion" && (
         <FormularioUbicacion
           location={selectedUbicacion}
-          onCancel={() => {
-            setSelectedUbicacion(null);
-            setCurrentView("acciones");
-          }}
+          onCancel={() => { setSelectedUbicacion(null); setCurrentView("acciones"); }}
           onSave={handleSaveLocation}
         />
       )}
@@ -487,7 +341,6 @@ const ProductosAlmacen = () => {
       {currentView === "verUbicaciones" && (
         <>
           {loadingLocations && <div className="text-gray-600 mb-3">Cargando ubicaciones...</div>}
-
           <TablaUbicaciones
             locations={locations}
             onBack={() => setCurrentView("acciones")}
