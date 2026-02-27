@@ -29,6 +29,9 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
   const [loadingCats, setLoadingCats] = useState(false);
   const [loadingLocs, setLoadingLocs] = useState(false);
 
+  // Obtener el token para todas las peticiones
+  const token = localStorage.getItem("token");
+
   useEffect(() => {
     if (producto) {
       setFormData({
@@ -55,7 +58,9 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
     const loadCategories = async () => {
       setLoadingCats(true);
       try {
-        const res = await fetch(`${API_URL}/api/categories`);
+        const res = await fetch(`${API_URL}/api/categories`, {
+          headers: { "Authorization": `Bearer ${token}` } // Integración de seguridad
+        });
         const data = await res.json();
 
         if (!res.ok) {
@@ -76,14 +81,16 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
       }
     };
 
-    loadCategories();
-  }, []);
+    if (token) loadCategories();
+  }, [token]);
 
   useEffect(() => {
     const loadLocations = async () => {
       setLoadingLocs(true);
       try {
-        const res = await fetch(`${API_URL}/api/locations`);
+        const res = await fetch(`${API_URL}/api/locations`, {
+          headers: { "Authorization": `Bearer ${token}` } // Integración de seguridad
+        });
         const data = await res.json();
 
         if (!res.ok) {
@@ -104,15 +111,15 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
       }
     };
 
-    loadLocations();
-  }, []);
+    if (token) loadLocations();
+  }, [token]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.code.trim()) return alert("El código del producto es obligatorio.");
     if (!formData.name.trim()) return alert("El nombre del producto es obligatorio.");
     if (!formData.category.trim()) return alert("La categoría es obligatoria.");
@@ -123,10 +130,14 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
       return alert("La cantidad inicial debe ser un número mayor o igual a 0.");
     }
 
-    onSave({
+    const payload = {
       ...formData,
       initialQuantity: formData.initialQuantity === "" ? 0 : qty,
-    });
+    };
+
+    // Llamamos a onSave pasándole el payload. 
+    // Asegúrate de que en ProductosAlmacen.jsx la función handleSaveProduct use el token en su fetch.
+    onSave(payload);
   };
 
   return (
