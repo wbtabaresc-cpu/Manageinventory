@@ -46,7 +46,7 @@ const ProductosAlmacen = () => {
   const loadProducts = async () => {
     setLoadingProducts(true);
     try {
-      const res = await fetch(`${API_URL}/api/products`, {
+      const res = await fetch(`${API_URL}/products`, {
         headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
       });
       const data = await res.json();
