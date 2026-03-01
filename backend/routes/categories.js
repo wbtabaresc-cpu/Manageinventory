@@ -1,104 +1,63 @@
 const express = require("express");
 const Category = require("../models/Category");
+const auth = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+// Listar todas las categorías disponibles
+router.get("/", auth, async (req, res) => {
   try {
     const categories = await Category.find().sort({ createdAt: -1 });
     res.json(categories);
   } catch (err) {
-    console.error("Get categories error:", err);
-    res.status(500).json({ message: "Error fetching categories" });
+    res.status(500).json({ message: "Error al cargar categorías" });
   }
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const category = await Category.findById(req.params.id);
-    if (!category) return res.status(404).json({ message: "Category not found" });
-    res.json(category);
-  } catch (err) {
-    console.error("Get category by id error:", err);
-    res.status(500).json({ message: "Error fetching category" });
-  }
-});
-
-router.post("/", async (req, res) => {
+// Crear categoría nueva (limpia espacios en el nombre)
+router.post("/", auth, async (req, res) => {
   try {
     let { name, description, status } = req.body;
 
-    if (!name || !String(name).trim()) {
-      return res.status(400).json({ message: "Name is required" });
-    }
+    if (!name || !name.trim()) return res.status(400).json({ message: "El nombre es obligatorio" });
 
-    name = String(name).trim();
-
-    if (status === "Activo") status = "ACTIVE";
-    if (status === "Inactivo") status = "INACTIVE";
-    status = status || "ACTIVE";
-
+    name = name.trim();
     const existing = await Category.findOne({ name });
-    if (existing) return res.status(400).json({ message: "Category already exists" });
+    if (existing) return res.status(400).json({ message: "La categoría ya existe" });
 
-    const category = await Category.create({
-      name,
-      description: description || "",
-      status,
-    });
-
-    res.status(201).json({ message: "Category created successfully", category });
+    const category = await Category.create({ name, description: description || "", status: status || "ACTIVE" });
+    res.status(201).json({ message: "Categoría guardada", category });
   } catch (err) {
-    console.error("Create category error:", err);
-    res.status(500).json({ message: "Error creating category" });
+    res.status(500).json({ message: "Error al crear categoría" });
   }
 });
 
-router.put("/:id", async (req, res) => {
+// Actualizar nombre o descripción de categoría
+router.put("/:id", auth, async (req, res) => {
   try {
     let { name, description, status } = req.body;
-
     const category = await Category.findById(req.params.id);
-    if (!category) return res.status(404).json({ message: "Category not found" });
+    if (!category) return res.status(404).json({ message: "Categoría no encontrada" });
 
-    if (typeof name === "string") name = name.trim();
-
-    if (status === "Activo") status = "ACTIVE";
-    if (status === "Inactivo") status = "INACTIVE";
-
-    if (name && name.toLowerCase() !== (category.name || "").trim().toLowerCase()) {
-      const existing = await Category.findOne({
-        name,
-        _id: { $ne: category._id },
-      });
-
-      if (existing) {
-        return res.status(400).json({ message: "Category already exists" });
-      }
-
-      category.name = name;
-    }
-
+    if (name) category.name = name.trim();
     if (description !== undefined) category.description = description;
-    if (status !== undefined) category.status = status;
+    if (status) category.status = status;
 
     await category.save();
-    res.json({ message: "Category updated", category });
+    res.json({ message: "Categoría actualizada", category });
   } catch (err) {
-    console.error("Update category error:", err);
-    res.status(500).json({ message: "Error updating category" });
+    res.status(500).json({ message: "Error al editar categoría" });
   }
 });
 
-router.delete("/:id", async (req, res) => {
+// Quitar categoría permanentemente
+router.delete("/:id", auth, async (req, res) => {
   try {
     const deleted = await Category.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: "Category not found" });
-
-    res.json({ message: "Category deleted" });
+    if (!deleted) return res.status(404).json({ message: "No existe la categoría" });
+    res.json({ message: "Categoría borrada" });
   } catch (err) {
-    console.error("Delete category error:", err);
-    res.status(500).json({ message: "Error deleting category" });
+    res.status(500).json({ message: "Error al borrar categoría" });
   }
 });
 
