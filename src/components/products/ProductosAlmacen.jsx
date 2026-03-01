@@ -66,7 +66,7 @@ const ProductosAlmacen = () => {
   const loadCategories = async () => {
     setLoadingCategories(true);
     try {
-      const res = await fetch(`${API_URL}/api/categories`, {
+      const res = await fetch(`${API_URL}/categories`, {
         headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
       });
       const data = await res.json();
@@ -86,7 +86,7 @@ const ProductosAlmacen = () => {
   const loadLocations = async () => {
     setLoadingLocations(true);
     try {
-      const res = await fetch(`${API_URL}/api/locations`, {
+      const res = await fetch(`${API_URL}/locations`, {
         headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
       });
       const data = await res.json();
@@ -152,13 +152,13 @@ const ProductosAlmacen = () => {
       };
 
       if (p._id) {
-        res = await fetch(`${API_URL}/api/products/${p._id}`, {
+        res = await fetch(`${API_URL}/products/${p._id}`, {
           method: "PUT",
           headers,
           body: JSON.stringify(payload),
         });
       } else {
-        res = await fetch(`${API_URL}/api/products`, {
+        res = await fetch(`${API_URL}/products`, {
           method: "POST",
           headers,
           body: JSON.stringify(payload),
@@ -187,7 +187,7 @@ const ProductosAlmacen = () => {
     if (!ok) return;
 
     try {
-      const res = await fetch(`${API_URL}/api/products/${producto._id}`, {
+      const res = await fetch(`${API_URL}/products/${producto._id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
       });
@@ -209,7 +209,7 @@ const ProductosAlmacen = () => {
     try {
       const payload = { name: (c.name || "").trim(), description: c.description || "", status: c.status || "ACTIVE" };
       const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${token}` };
-      const res = await fetch(`${API_URL}/api/categories${c._id ? `/${c._id}` : ""}`, {
+      const res = await fetch(`${API_URL}/categories${c._id ? `/${c._id}` : ""}`, {
         method: c._id ? "PUT" : "POST",
         headers,
         body: JSON.stringify(payload),
@@ -224,7 +224,7 @@ const ProductosAlmacen = () => {
   const handleDeleteCategory = async (c) => {
     if (!confirm("¿Eliminar categoría?")) return;
     try {
-      const res = await fetch(`${API_URL}/api/categories/${c._id}`, {
+      const res = await fetch(`${API_URL}/categories/${c._id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });
@@ -235,7 +235,7 @@ const ProductosAlmacen = () => {
   const handleSaveLocation = async (l) => {
     try {
       const payload = { warehouse: Number(l.warehouse), aisle: Number(l.aisle), rack: l.rack, description: l.description, status: l.status };
-      const res = await fetch(`${API_URL}/api/locations${l._id ? `/${l._id}` : ""}`, {
+      const res = await fetch(`${API_URL}/locations${l._id ? `/${l._id}` : ""}`, {
         method: l._id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
         body: JSON.stringify(payload),
@@ -247,7 +247,7 @@ const ProductosAlmacen = () => {
   const handleDeleteLocation = async (l) => {
     if (!confirm("¿Eliminar ubicación?")) return;
     try {
-      const res = await fetch(`${API_URL}/api/locations/${l._id}`, {
+      const res = await fetch(`${API_URL}/locations/${l._id}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${token}` }
       });

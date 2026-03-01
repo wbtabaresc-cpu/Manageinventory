@@ -101,7 +101,7 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
           (l) => normalizeStatus(l.status) !== "INACTIVE"
         );
 
-        setLocations(active);
+        setCategories(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
         alert("No se pudo conectar con el servidor para cargar ubicaciones.");
