@@ -27,15 +27,15 @@ const Header = ({ setAuth, setIsSidebarOpen }) => {
           <Boxes className="text-white w-8 h-8 md:w-10 md:h-10" />
         </div>
         
-        <div className="flex flex-col min-w-0 flex-1 ml-6 md:ml-10 transition-all">
-          <h1 className="text-sm sm:text-lg md:text-2xl font-black text-gray-800 uppercase tracking-tighter leading-tight break-words md:whitespace-nowrap">
+
+        <div className="flex flex-col min-w-0 flex-1 ml-6 md:ml-12">
+          <h1 className="text-sm sm:text-lg md:text-2xl font-black text-gray-800 uppercase tracking-tight leading-none block w-full">
             SISTEMA DE GESTIÓN DE INVENTARIO
           </h1>
-          <h2 className="text-xs md:text-sm text-blue-600 font-bold">
-            Bienvenido, {user.name}
+          <h2 className="text-xs md:text-sm text-blue-600 font-bold mt-1">
+            Bienvenido, {user.name} 👋
           </h2>
         </div>
-      </div>
 
       <div className="flex gap-4 text-gray-500 items-center relative shrink-0" ref={menuRef}>
         <div className="hidden sm:flex gap-4">
