@@ -5,20 +5,26 @@ import MainContent from "./MainContent";
 
 const Dashboard = ({ setAuth }) => {
   const [activeSection, setActiveSection] = useState("inicio");
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
 
+    
       <Sidebar 
         activeSection={activeSection} 
-        setActiveSection={setActiveSection} 
+        setActiveSection={setActiveSection}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
+      <div className="flex-1 flex flex-col min-w-0"> 
+        
+        <Header setAuth={setAuth} setIsSidebarOpen={setIsSidebarOpen} />
 
-      <div className="flex-1 flex flex-col">
-        <Header setAuth={setAuth} />
-
-        <main className="flex-1 px-6 pt-24 pb-6 bg-transparent">
-        <MainContent activeSection={activeSection} />
+  
+        <main className="flex-1 overflow-y-auto px-4 md:px-8 pt-20 md:pt-24 pb-6 scroll-smooth">
+          <div className="max-w-7xl mx-auto w-full">
+            <MainContent activeSection={activeSection} />
+          </div>
         </main>
 
       </div>

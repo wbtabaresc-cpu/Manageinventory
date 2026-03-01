@@ -35,7 +35,6 @@ const ProductosAlmacen = () => {
   const [locations, setLocations] = useState([]);
   const [loadingLocations, setLoadingLocations] = useState(false);
 
-  // Recuperamos el token del localStorage
   const token = localStorage.getItem("token");
 
   const showSuccess = (msg) => {
@@ -47,7 +46,7 @@ const ProductosAlmacen = () => {
     setLoadingProducts(true);
     try {
       const res = await fetch(`${API_URL}/products`, {
-        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+        headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
       if (!res.ok) {
@@ -67,7 +66,7 @@ const ProductosAlmacen = () => {
     setLoadingCategories(true);
     try {
       const res = await fetch(`${API_URL}/categories`, {
-        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+        headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
       if (!res.ok) {
@@ -87,7 +86,7 @@ const ProductosAlmacen = () => {
     setLoadingLocations(true);
     try {
       const res = await fetch(`${API_URL}/locations`, {
-        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+        headers: { "Authorization": `Bearer ${token}` }
       });
       const data = await res.json();
       if (!res.ok) {
@@ -145,10 +144,10 @@ const ProductosAlmacen = () => {
         description: p.description,
       };
 
-      let res, data;
+      let res;
       const headers = { 
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` // INTEGRACIÓN SEGURIDAD
+        "Authorization": `Bearer ${token}`
       };
 
       if (p._id) {
@@ -165,7 +164,7 @@ const ProductosAlmacen = () => {
         });
       }
 
-      data = await res.json();
+      const data = await res.json();
       if (!res.ok) {
         alert(data.message || "Error al guardar producto");
         return;
@@ -189,7 +188,7 @@ const ProductosAlmacen = () => {
     try {
       const res = await fetch(`${API_URL}/products/${producto._id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` } // INTEGRACIÓN SEGURIDAD
+        headers: { "Authorization": `Bearer ${token}` }
       });
       if (!res.ok) {
         const data = await res.json();
@@ -202,8 +201,6 @@ const ProductosAlmacen = () => {
       console.error(err);
     }
   };
-
-  // --- MÉTODOS SIMILARES PARA CATEGORÍAS Y UBICACIONES (También con Token) ---
 
   const handleSaveCategory = async (c) => {
     try {
@@ -255,7 +252,6 @@ const ProductosAlmacen = () => {
     } catch (err) { console.error(err); }
   };
 
-
   const handleViewProduct = (p) => { setSelectedProducto(p); setCurrentView("detalleProducto"); };
   const handleEditProduct = (p) => { setSelectedProducto(p); setCurrentView("formProducto"); };
   const handleViewCategory = (c) => { setSelectedCategoria(c); setCurrentView("detalleCategoria"); };
@@ -264,59 +260,77 @@ const ProductosAlmacen = () => {
   const handleEditLocation = (l) => { setSelectedUbicacion(l); setCurrentView("formUbicacion"); };
 
   return (
-    <div className="flex flex-col w-full items-center px-6">
+    <div className="flex flex-col w-full items-center px-4 md:px-8 py-6 max-w-7xl mx-auto min-h-screen">
+      
+      {/* Mensaje de éxito flotante */}
       {successMessage && (
-        <div className="bg-green-600 text-white px-6 py-3 rounded-lg mb-6 shadow-lg font-semibold">
+        <div className="fixed top-5 z-50 bg-green-600 text-white px-6 py-3 rounded-lg shadow-2xl font-semibold animate-bounce">
           {successMessage}
         </div>
       )}
 
+      {/* VISTA: ACCIONES PRINCIPALES */}
       {currentView === "acciones" && (
-        <>
+        <div className="w-full flex flex-col gap-10">
           <AccionesProducto onAction={handleAction} />
-          <ActionButtons />
-          <AlertBox />
-        </>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+            <ActionButtons />
+            <AlertBox />
+          </div>
+        </div>
       )}
 
+      {/* VISTA: FORMULARIO PRODUCTO */}
       {currentView === "formProducto" && (
-        <FormularioProducto
-          producto={selectedProducto}
-          categories={categories} 
-          locations={locations}
-          onCancel={() => { setSelectedProducto(null); setCurrentView("acciones"); }}
-          onSave={handleSaveProduct}
-        />
-      )}
-
-      {currentView === "verProductos" && (
-        <>
-          {loadingProducts && <div className="text-gray-600 mb-3">Cargando productos...</div>}
-          <TablaProductos
-            products={products}
-            onBack={() => setCurrentView("acciones")}
-            onView={handleViewProduct}
-            onEdit={handleEditProduct}
-            onDelete={handleDeleteProduct}
+        <div className="w-full max-w-3xl">
+          <FormularioProducto
+            producto={selectedProducto}
+            categories={categories} 
+            locations={locations}
+            onCancel={() => { setSelectedProducto(null); setCurrentView("acciones"); }}
+            onSave={handleSaveProduct}
           />
-        </>
+        </div>
       )}
 
+      {/* VISTA: TABLA PRODUCTOS */}
+      {currentView === "verProductos" && (
+        <div className="w-full flex flex-col gap-4">
+          <div className="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-100">
+            {loadingProducts && <div className="p-4 text-center text-blue-600 font-medium">Cargando productos...</div>}
+            <TablaProductos
+              products={products}
+              onBack={() => setCurrentView("acciones")}
+              onView={handleViewProduct}
+              onEdit={handleEditProduct}
+              onDelete={handleDeleteProduct}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* VISTA: DETALLE PRODUCTO */}
       {currentView === "detalleProducto" && (
-        <DetalleProducto producto={selectedProducto} onBack={() => setCurrentView("verProductos")} />
+        <div className="w-full max-w-4xl">
+          <DetalleProducto producto={selectedProducto} onBack={() => setCurrentView("verProductos")} />
+        </div>
       )}
 
+      {/* VISTA: FORMULARIO CATEGORÍA */}
       {currentView === "formCategoria" && (
-        <FormularioCategoria
-          categoria={selectedCategoria}
-          onCancel={() => { setSelectedCategoria(null); setCurrentView("acciones"); }}
-          onSave={handleSaveCategory}
-        />
+        <div className="w-full max-w-2xl">
+          <FormularioCategoria
+            categoria={selectedCategoria}
+            onCancel={() => { setSelectedCategoria(null); setCurrentView("acciones"); }}
+            onSave={handleSaveCategory}
+          />
+        </div>
       )}
 
+      {/* VISTA: TABLA CATEGORÍAS */}
       {currentView === "verCategorias" && (
-        <>
-          {loadingCategories && <div className="text-gray-600 mb-3">Cargando categorías...</div>}
+        <div className="w-full overflow-x-auto bg-white rounded-xl shadow-md">
+          {loadingCategories && <div className="p-4 text-center">Cargando categorías...</div>}
           <TablaCategorias
             categories={categories}
             onBack={() => setCurrentView("acciones")}
@@ -324,24 +338,31 @@ const ProductosAlmacen = () => {
             onEdit={handleEditCategory}
             onDelete={handleDeleteCategory}
           />
-        </>
+        </div>
       )}
 
+      {/* VISTA: DETALLE CATEGORÍA */}
       {currentView === "detalleCategoria" && (
-        <DetalleCategoria categoria={selectedCategoria} onBack={() => setCurrentView("verCategorias")} />
+        <div className="w-full max-w-2xl">
+          <DetalleCategoria categoria={selectedCategoria} onBack={() => setCurrentView("verCategorias")} />
+        </div>
       )}
 
+      {/* VISTA: FORMULARIO UBICACIÓN */}
       {currentView === "formUbicacion" && (
-        <FormularioUbicacion
-          location={selectedUbicacion}
-          onCancel={() => { setSelectedUbicacion(null); setCurrentView("acciones"); }}
-          onSave={handleSaveLocation}
-        />
+        <div className="w-full max-w-2xl">
+          <FormularioUbicacion
+            location={selectedUbicacion}
+            onCancel={() => { setSelectedUbicacion(null); setCurrentView("acciones"); }}
+            onSave={handleSaveLocation}
+          />
+        </div>
       )}
 
+      {/* VISTA: TABLA UBICACIONES */}
       {currentView === "verUbicaciones" && (
-        <>
-          {loadingLocations && <div className="text-gray-600 mb-3">Cargando ubicaciones...</div>}
+        <div className="w-full overflow-x-auto bg-white rounded-xl shadow-md">
+          {loadingLocations && <div className="p-4 text-center">Cargando ubicaciones...</div>}
           <TablaUbicaciones
             locations={locations}
             onBack={() => setCurrentView("acciones")}
@@ -349,14 +370,17 @@ const ProductosAlmacen = () => {
             onEdit={handleEditLocation}
             onDelete={handleDeleteLocation}
           />
-        </>
+        </div>
       )}
 
+      {/* VISTA: DETALLE UBICACIÓN */}
       {currentView === "detalleUbicacion" && (
-        <DetalleUbicacion
-          location={selectedUbicacion}
-          onBack={() => setCurrentView("verUbicaciones")}
-        />
+        <div className="w-full max-w-2xl">
+          <DetalleUbicacion
+            location={selectedUbicacion}
+            onBack={() => setCurrentView("verUbicaciones")}
+          />
+        </div>
       )}
     </div>
   );

@@ -8,20 +8,26 @@ const FormCard = ({
   onSubmit,
   submitText = "Guardar",
   cancelText = "Cancelar",
+  maxWidth = "max-w-2xl", // Nuevo prop con valor por defecto más amplio
 }) => {
   return (
-    <div className="w-full flex flex-col justify-start items-center px-6 py-10">
-      <div className="bg-white p-8 rounded-2xl shadow-xl border w-full max-w-lg flex flex-col gap-5">
+    /* Ajustamos el padding lateral (px-4) para que en móvil no pegue a los bordes */
+    <div className="w-full flex flex-col justify-start items-center px-4 md:px-6 py-6 md:py-10">
+      
+      {/* Cambiamos max-w-lg por la prop {maxWidth}. 
+         Esto permite que el formulario de productos sea max-w-4xl 
+         mientras que el de login siga siendo pequeño.
+      */}
+      <div className={`bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100 w-full ${maxWidth} flex flex-col gap-5 transition-all`}>
 
-
-        <h2 className="text-3xl font-bold text-gray-700 text-center">{title}</h2>
-
-        {subtitle && (
-          <h3 className="text-md text-gray-500 text-center -mt-4 mb-2">
-            {subtitle}
-          </h3>
-        )}
-
+        <div className="text-center space-y-1">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-800">{title}</h2>
+          {subtitle && (
+            <h3 className="text-sm md:text-base text-gray-500 font-medium italic">
+              {subtitle}
+            </h3>
+          )}
+        </div>
 
         <form
           onSubmit={(e) => {
@@ -30,15 +36,18 @@ const FormCard = ({
           }}
           className="flex flex-col gap-4"
         >
-          {children}
+          {/* Aquí inyectamos los campos de los formularios */}
+          <div className="w-full">
+            {children}
+          </div>
 
-
-          <div className="flex justify-end gap-4 mt-2">
+          {/* Botones responsivos: se ponen uno arriba del otro en móviles muy pequeños */}
+          <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
             {onCancel && (
               <button
                 type="button"
                 onClick={onCancel}
-                className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+                className="order-2 sm:order-1 bg-gray-100 text-gray-700 px-8 py-2.5 rounded-xl font-bold hover:bg-gray-200 transition-colors"
               >
                 {cancelText}
               </button>
@@ -47,7 +56,7 @@ const FormCard = ({
             {onSubmit && (
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                className="order-1 sm:order-2 bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95"
               >
                 {submitText}
               </button>

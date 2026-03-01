@@ -16,74 +16,89 @@ const TablaCategorias = ({ categories = [], onBack, onView, onEdit, onDelete }) 
   }, [search, categories]);
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-6xl">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-700">Categorías</h2>
+    <div className="bg-white p-4 md:p-6 rounded-xl shadow-md w-full max-w-7xl mx-auto border border-gray-100">
+      
+      {/* Cabecera Responsiva */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Categorías de Inventario</h2>
+          <p className="text-sm text-gray-500">Clasificación y agrupación de suministros</p>
+        </div>
 
         <button
           onClick={onBack}
-          className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+          className="w-full sm:w-auto px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold transition-colors"
         >
           Volver
         </button>
       </div>
 
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Buscar por nombre, descripción o estado..."
-        className="w-full border px-4 py-2 rounded-lg mb-4"
-      />
+      {/* Buscador Estilizado */}
+      <div className="relative mb-6">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar por nombre, descripción o estado..."
+          className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all shadow-sm"
+        />
+      </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left table-auto">
+      {/* Tabla con Scroll Horizontal */}
+      <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
-            <tr className="border-b">
-              <th className="py-2 pr-6">Nombre</th>
-              <th className="py-2 pr-6">Descripción</th>
-              <th className="py-2 pr-6">Estado</th>
-              <th className="py-2">Acciones</th>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider w-1/4">Nombre</th>
+              <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider w-1/2">Descripción</th>
+              <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Estado</th>
+              <th className="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-center">Acciones</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-gray-100 bg-white">
             {filtered.map((c) => (
-              <tr key={c._id} className="border-b align-top">
-                <td className="py-2 pr-6 font-medium text-gray-800">{c.name}</td>
-                <td className="py-2 pr-6 text-gray-700 whitespace-pre-wrap">
-                  {c.description || "—"}
+              <tr key={c._id} className="hover:bg-indigo-50/30 transition-colors align-middle">
+                <td className="py-4 px-6 font-bold text-indigo-900">
+                  {c.name}
                 </td>
-                <td className="py-2 pr-6">
+                
+                <td className="py-4 px-6 text-sm text-gray-600 italic">
+                  <div className="max-w-md truncate md:whitespace-normal">
+                    {c.description || "—"}
+                  </div>
+                </td>
+
+                <td className="py-4 px-6 text-center">
                   <span
-                    className={`inline-flex px-2 py-1 rounded-md text-xs font-semibold ${
+                    className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${
                       c.status === "INACTIVE"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700"
+                        ? "bg-red-100 text-red-600"
+                        : "bg-indigo-100 text-indigo-700"
                     }`}
                   >
-                    {c.status || "ACTIVE"}
+                    {c.status === "INACTIVE" ? "Inactivo" : "Activo"}
                   </span>
                 </td>
 
-                <td className="py-2">
-                  <div className="flex flex-wrap gap-2">
+                <td className="py-4 px-6">
+                  <div className="flex justify-center gap-3">
                     <button
-                      className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+                      className="text-sm font-medium text-gray-400 hover:text-indigo-600 transition-colors"
                       onClick={() => onView?.(c)}
                     >
                       Ver
                     </button>
                     <button
-                      className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                      className="text-sm font-medium text-gray-400 hover:text-yellow-600 transition-colors"
                       onClick={() => onEdit?.(c)}
                     >
                       Editar
                     </button>
                     <button
-                      className="px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+                      className="text-sm font-medium text-gray-400 hover:text-red-600 transition-colors"
                       onClick={() => onDelete?.(c)}
                     >
-                      Eliminar
+                      Borrar
                     </button>
                   </div>
                 </td>
@@ -92,8 +107,8 @@ const TablaCategorias = ({ categories = [], onBack, onView, onEdit, onDelete }) 
 
             {filtered.length === 0 && (
               <tr>
-                <td colSpan="4" className="py-6 text-center text-gray-500">
-                  No hay categorías para mostrar.
+                <td colSpan="4" className="py-12 text-center text-gray-400">
+                  No se encontraron categorías que coincidan con "{search}"
                 </td>
               </tr>
             )}

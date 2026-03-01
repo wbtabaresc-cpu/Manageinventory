@@ -11,6 +11,7 @@ const RegisterUserForm = ({ onCancel }) => {
   });
 
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +27,7 @@ const RegisterUserForm = ({ onCancel }) => {
       return;
     }
 
+    setLoading(true);
     try {
       const res = await fetch("https://manageinventory-bbot.onrender.com/api/auth/register", {
         method: "POST",
@@ -50,104 +52,134 @@ const RegisterUserForm = ({ onCancel }) => {
     } catch (err) {
       console.error(err);
       setMessage("No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center items-center px-6">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center px-4 py-8">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-2xl shadow-xl border w-full max-w-lg flex flex-col gap-5"
+        className="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100 w-full max-w-2xl flex flex-col gap-6"
       >
-        <h2 className="text-3xl font-bold text-gray-700 mb-4 text-center">
-          Registrar Usuario Nuevo
-        </h2>
+        <div className="text-center">
+          <h2 className="text-2xl md:text-3xl font-black text-gray-800 uppercase tracking-tight">
+            Nuevo Usuario
+          </h2>
+          <p className="text-gray-500 text-sm font-medium">Asigne credenciales y roles al personal</p>
+        </div>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Nombre completo"
-          value={formData.name}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded-lg"
-          required
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Nombre Completo</label>
+            <input
+              type="text"
+              name="name"
+              placeholder="Ej: Juan Pérez"
+              value={formData.name}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+              required
+            />
+          </div>
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo"
-          value={formData.email}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded-lg"
-          required
-        />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Correo Electrónico</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="correo@ejemplo.com"
+              value={formData.email}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+              required
+            />
+          </div>
 
-        <input
-          type="text"
-          name="username"
-          placeholder="Nombre de usuario"
-          value={formData.username}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded-lg"
-          required
-        />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Usuario de Sistema</label>
+            <input
+              type="text"
+              name="username"
+              placeholder="jperez2026"
+              value={formData.username}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+              required
+            />
+          </div>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={formData.password}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded-lg"
-          required
-        />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Rol de Acceso</label>
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none bg-white font-medium"
+            >
+              <option value="ADMIN">Administrador</option>
+              <option value="SUPERVISOR">Supervisor</option>
+              <option value="COORDINATOR">Coordinador</option>
+              <option value="OPERATOR">Operador</option>
+            </select>
+          </div>
+        </div>
 
-        <input
-          type="password"
-          name="repeatPassword"
-          placeholder="Repetir Contraseña"
-          value={formData.repeatPassword}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded-lg"
-          required
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Contraseña</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none"
+              required
+            />
+          </div>
 
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          className="border px-4 py-2 rounded-lg"
-        >
-          <option value="ADMIN">Administrador</option>
-          <option value="SUPERVISOR">Supervisor</option>
-          <option value="COORDINATOR">Coordinador</option>
-          <option value="OPERATOR">Operador</option>
-        </select>
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Confirmar Contraseña</label>
+            <input
+              type="password"
+              name="repeatPassword"
+              placeholder="••••••••"
+              value={formData.repeatPassword}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2.5 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none"
+              required
+            />
+          </div>
+        </div>
 
         {message && (
-          <p
-            className={`text-sm ${
-              message.includes("correctamente") ? "text-green-600" : "text-red-600"
-            }`}
-          >
+          <div className={`text-center p-3 rounded-xl text-sm font-bold animate-pulse ${
+            message.includes("correctamente") 
+            ? "bg-green-50 text-green-700 border border-green-200" 
+            : "bg-red-50 text-red-700 border border-red-200"
+          }`}>
             {message}
-          </p>
+          </div>
         )}
 
-        <div className="flex justify-end gap-4">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 mt-4">
           <button
             type="button"
             onClick={onCancel}
-            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700"
+            className="px-8 py-3 rounded-xl bg-gray-100 text-gray-600 font-bold hover:bg-gray-200 transition-all order-2 sm:order-1"
           >
-            Cancelar
+            Regresar
           </button>
           <button
             type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            disabled={loading}
+            className={`px-8 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 transition-all active:scale-95 order-1 sm:order-2 ${
+              loading ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-700"
+            }`}
           >
-            Guardar
+            {loading ? "Registrando..." : "Crear Usuario"}
           </button>
         </div>
       </form>

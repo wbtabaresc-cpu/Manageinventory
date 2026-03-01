@@ -14,11 +14,10 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
   useEffect(() => {
     if (categoria) {
       const rawStatus = categoria.status ?? categoria.estado;
-
       setFormData({
         _id: categoria._id ?? "",
         nombre: categoria.name ?? categoria.nombre ?? "",
-        description: categoria.description ?? categoria.descripcion ?? "",
+        descripcion: categoria.description ?? categoria.descripcion ?? "",
         estado: rawStatus === "INACTIVE" || rawStatus === "Inactivo" ? "Inactivo" : "Activo",
       });
     } else {
@@ -39,8 +38,6 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
   const handleSubmit = () => {
     const name = (formData.nombre || "").trim();
     if (!name) return alert("El nombre de la categoría es obligatorio.");
-    
-    // Verificación de seguridad básica antes de enviar
     if (!token) return alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
 
     const status = formData.estado === "Inactivo" ? "INACTIVE" : "ACTIVE";
@@ -52,53 +49,57 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
       status,
     };
 
-    // Esto envía los datos a handleSaveCategory en ProductosAlmacen.jsx
-    // la cual ya actualizamos con los headers de Authorization.
     onSave(payload);
   };
 
   return (
     <FormCard
       title={categoria ? "Editar Categoría" : "Registrar Nueva Categoría"}
-      subtitle="Complete la información requerida"
+      subtitle="Defina los grupos para organizar sus productos"
       onCancel={onCancel}
       onSubmit={handleSubmit}
     >
-      <div className="flex flex-col gap-1">
-        <label className="text-gray-700 font-semibold">Nombre de la categoría *</label>
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Ej: Insumos de Oficina"
-          value={formData.nombre}
-          onChange={handleChange}
-          className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
-          required
-        />
-      </div>
+      <div className="space-y-6">
+        {/* Fila Superior: Nombre y Estado */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-1 md:col-span-2">
+            <label className="text-gray-700 font-bold text-sm">Nombre de la categoría *</label>
+            <input
+              type="text"
+              name="nombre"
+              placeholder="Ej: Insumos de Oficina"
+              value={formData.nombre}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+              required
+            />
+          </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-gray-700 font-semibold">Descripción</label>
-        <textarea
-          name="descripcion"
-          placeholder="Breve descripción de los artículos de esta categoría"
-          value={formData.descripcion}
-          onChange={handleChange}
-          className="border border-gray-300 px-4 py-2 rounded-lg h-24 resize-none focus:ring-2 focus:ring-blue-600 outline-none"
-        />
-      </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-gray-700 font-bold text-sm">Estado</label>
+            <select
+              name="estado"
+              value={formData.estado}
+              onChange={handleChange}
+              className="border border-gray-300 px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium"
+            >
+              <option value="Activo">✅ Activo</option>
+              <option value="Inactivo">🚫 Inactivo</option>
+            </select>
+          </div>
+        </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-gray-700 font-semibold">Estado</label>
-        <select
-          name="estado"
-          value={formData.estado}
-          onChange={handleChange}
-          className="border border-gray-300 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none"
-        >
-          <option value="Activo">Activo</option>
-          <option value="Inactivo">Inactivo</option>
-        </select>
+        {/* Fila Inferior: Descripción */}
+        <div className="flex flex-col gap-1">
+          <label className="text-gray-700 font-bold text-sm">Descripción Detallada</label>
+          <textarea
+            name="descripcion"
+            placeholder="¿Qué tipo de artículos pertenecen a esta categoría?"
+            value={formData.descripcion}
+            onChange={handleChange}
+            className="border border-gray-300 px-4 py-2 rounded-xl h-28 resize-none focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-sm"
+          />
+        </div>
       </div>
     </FormCard>
   );
