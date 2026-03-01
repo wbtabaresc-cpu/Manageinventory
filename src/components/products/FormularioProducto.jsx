@@ -279,7 +279,7 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
           {!loadingLocs &&
             locations.map((l) => (
               <option key={l._id} value={l.name}>
-                {l.label}
+                {l.name}
               </option>
             ))}
         </select>
