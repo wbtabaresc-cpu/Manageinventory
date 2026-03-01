@@ -84,7 +84,7 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
   }, [token]);
 
   useEffect(() => {
-    const loadLocations = async () => {
+const loadLocations = async () => {
       setLoadingLocs(true);
       try {
         const res = await fetch(`${API_URL}/locations`, {
@@ -97,11 +97,8 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
           return;
         }
 
-        const active = (Array.isArray(data) ? data : []).filter(
-          (l) => normalizeStatus(l.status) !== "INACTIVE"
-        );
-
-        setCategories(Array.isArray(data) ? data : []);
+        setLocations(Array.isArray(data) ? data : []);
+        
       } catch (err) {
         console.error(err);
         alert("No se pudo conectar con el servidor para cargar ubicaciones.");
