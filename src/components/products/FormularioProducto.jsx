@@ -274,11 +274,15 @@ const loadLocations = async () => {
           </option>
 
           {!loadingLocs &&
-            locations.map((l) => (
-              <option key={l._id} value={l.name}>
-                {l.name}
-              </option>
-            ))}
+          locations.map((l) => {
+          const ubicacionEtiqueta = `Bodega ${l.warehouse} - Pasillo ${l.aisle} - Rack ${l.rack}`;
+    
+        return (
+          <option key={l._id} value={ubicacionEtiqueta}>
+        {ubicacionEtiqueta}
+       </option>
+    );
+  })}
         </select>
 
         {!loadingLocs && locations.length === 0 && (
