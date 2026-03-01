@@ -16,7 +16,7 @@ import DetalleProducto from "./DetalleProducto";
 import ActionButtons from "../ActionButtons";
 import AlertBox from "../AlertBox";
 
-const API_URL = "https://manageinventory-bbot.onrender.com";
+import { API_URL } from "../../config";
 
 const ProductosAlmacen = () => {
   const [currentView, setCurrentView] = useState("acciones");
@@ -255,7 +255,6 @@ const ProductosAlmacen = () => {
     } catch (err) { console.error(err); }
   };
 
-  // --- RENDERIZADO (Se mantiene igual que el tuyo) ---
 
   const handleViewProduct = (p) => { setSelectedProducto(p); setCurrentView("detalleProducto"); };
   const handleEditProduct = (p) => { setSelectedProducto(p); setCurrentView("formProducto"); };
@@ -283,6 +282,8 @@ const ProductosAlmacen = () => {
       {currentView === "formProducto" && (
         <FormularioProducto
           producto={selectedProducto}
+          categories={categories} 
+          locations={locations}
           onCancel={() => { setSelectedProducto(null); setCurrentView("acciones"); }}
           onSave={handleSaveProduct}
         />

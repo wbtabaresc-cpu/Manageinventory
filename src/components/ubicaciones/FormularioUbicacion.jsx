@@ -11,7 +11,6 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
     status: "Activo",
   });
 
-  // Recuperamos el token para validación de seguridad previa al envío
   const token = localStorage.getItem("token");
 
   useEffect(() => {

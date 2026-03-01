@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FormCard from "../ui/FormCard.jsx";
 
-const API_URL = "http://localhost:5000";
+import { API_URL } from "../../config";
 
 const normalizeStatus = (s) => {
   if (!s) return "ACTIVE";
@@ -29,7 +29,6 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
   const [loadingCats, setLoadingCats] = useState(false);
   const [loadingLocs, setLoadingLocs] = useState(false);
 
-  // Obtener el token para todas las peticiones
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -58,8 +57,8 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
     const loadCategories = async () => {
       setLoadingCats(true);
       try {
-        const res = await fetch(`${API_URL}/api/categories`, {
-          headers: { "Authorization": `Bearer ${token}` } // Integración de seguridad
+        const res = await fetch(`${API_URL}/categories`, {
+          headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
 
@@ -88,8 +87,8 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
     const loadLocations = async () => {
       setLoadingLocs(true);
       try {
-        const res = await fetch(`${API_URL}/api/locations`, {
-          headers: { "Authorization": `Bearer ${token}` } // Integración de seguridad
+        const res = await fetch(`${API_URL}/locations`, {
+          headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await res.json();
 
@@ -135,8 +134,6 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
       initialQuantity: formData.initialQuantity === "" ? 0 : qty,
     };
 
-    // Llamamos a onSave pasándole el payload. 
-    // Asegúrate de que en ProductosAlmacen.jsx la función handleSaveProduct use el token en su fetch.
     onSave(payload);
   };
 
@@ -281,7 +278,7 @@ const FormularioProducto = ({ producto, onCancel, onSave }) => {
 
           {!loadingLocs &&
             locations.map((l) => (
-              <option key={l._id} value={l.label}>
+              <option key={l._id} value={l.name}>
                 {l.label}
               </option>
             ))}

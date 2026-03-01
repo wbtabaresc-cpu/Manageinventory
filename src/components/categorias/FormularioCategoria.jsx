@@ -8,9 +8,7 @@ const FormularioCategoria = ({ categoria, onCancel, onSave }) => {
     descripcion: "",
     estado: "Activo",
   });
-
-  // Aunque el 'onSave' del padre ya usa el token, 
-  // es buena práctica tener acceso a él aquí por si necesitas validar algo.
+  
   const token = localStorage.getItem("token");
 
   useEffect(() => {
