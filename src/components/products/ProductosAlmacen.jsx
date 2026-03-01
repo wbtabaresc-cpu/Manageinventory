@@ -16,7 +16,7 @@ import DetalleProducto from "./DetalleProducto";
 import ActionButtons from "../ActionButtons";
 import AlertBox from "../AlertBox";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://manageinventory-bbot.onrender.com";
 
 const ProductosAlmacen = () => {
   const [currentView, setCurrentView] = useState("acciones");

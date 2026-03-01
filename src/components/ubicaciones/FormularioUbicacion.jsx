@@ -63,7 +63,6 @@ const FormularioUbicacion = ({ location, onCancel, onSave }) => {
       status: formData.status === "Inactivo" ? "INACTIVE" : "ACTIVE",
     };
 
-    // Envía el payload al método handleSaveLocation de ProductosAlmacen.jsx
     onSave(payload);
   };
 
