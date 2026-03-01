@@ -29,18 +29,20 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => {
         flex flex-col shadow-2xl md:shadow-none
       `}>
         
-        <div className="flex items-center justify-between p-6 md:hidden">
-          <span className="font-black text-xl italic">SIGI MENU</span>
-          <button onClick={() => setIsOpen(false)} className="p-2 bg-white/10 rounded-lg">
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="hidden md:flex flex-col items-center py-10 px-6">
-           <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-              <Boxes className="text-blue-600 w-10 h-10" />
+        <div className="flex flex-col items-center py-8 md:py-10 px-6">
+           <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-xl overflow-hidden p-2">
+              <img 
+                src="/img/Logo.png" 
+                alt="Logo SIGI" 
+                className="w-full h-full object-contain"
+              />
            </div>
-           <h2 className="text-xl font-black italic tracking-widest text-blue-100">INVENTARIO</h2>
+           <h2 className="text-lg md:text-xl font-black italic tracking-widest text-white">
+             SIGI
+           </h2>
+           <p className="text-[10px] text-blue-200 font-bold uppercase tracking-tighter">
+             Sistema de Gestión
+           </p>
         </div>
 
         <div className="px-6 mb-6">
@@ -83,12 +85,12 @@ const Sidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => {
 
         <div className="p-6 border-t border-blue-500/30 mt-auto">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-500 border-2 border-white/20 flex items-center justify-center font-bold">
-              G
+            <div className="w-10 h-10 rounded-full bg-blue-500 border-2 border-white/20 flex items-center justify-center font-bold text-white uppercase">
+              O
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold text-blue-200 uppercase tracking-tighter">Operador</p>
-              <p className="text-sm font-black truncate">Ge Desarrollador</p>
+              <p className="text-xs font-bold text-blue-200 uppercase tracking-tighter">Admin</p>
+              <p className="text-sm font-black truncate text-white">William</p>
             </div>
           </div>
         </div>
